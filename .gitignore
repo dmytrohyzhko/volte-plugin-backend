@@ -1,0 +1,3 @@
+.env
+/volte/db.sqlite3
+/volte/amazon_reviews
