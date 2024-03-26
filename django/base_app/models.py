@@ -34,3 +34,18 @@ class ModelProject(models.Model):
 
     class Meta:
         db_table = "projects"
+
+class ModelUerxLog(models.Model):
+    userx_id = models.CharField(max_length=250)
+    url = models.CharField(max_length=250)
+    brand = models.CharField(max_length=250)
+    sid = models.CharField(max_length=250)
+    ua = models.CharField(max_length=250)
+    ip = models.CharField(max_length=250)
+    brandsrc = models.CharField(max_length=250)
+    to = models.CharField(max_length=250)
+    li = models.CharField(max_length=250)
+    result = models.CharField(max_length=250)
+
+    class Meta:
+        db_table = "userx_log"

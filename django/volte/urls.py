@@ -19,6 +19,7 @@ from base_app.views import *
 
 urlpatterns = [
     # Volte Extension
+    path('api/welcome', welcome, name='query'),
     path('api/volte/extension/crx', volteCRX, name='query'),
     path('api/volte/extension/installed', installedCRX, name='query'),
     path('api/volte/extension/activity', lastSeen, name='query'),
