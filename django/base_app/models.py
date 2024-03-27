@@ -46,6 +46,7 @@ class ModelUerxLog(models.Model):
     to = models.CharField(max_length=250)
     li = models.CharField(max_length=250)
     result = models.CharField(max_length=250)
+    created_at = models.CharField(max_length=250)
 
     class Meta:
         db_table = "userx_log"
