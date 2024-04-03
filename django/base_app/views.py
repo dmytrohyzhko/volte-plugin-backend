@@ -1,3 +1,4 @@
+from .types import *
 from .models import *
 from pymongo import MongoClient
 import socket
@@ -13,11 +14,19 @@ import requests
 import xmltodict
 from django.shortcuts import render, redirect
 
+from geoip import geolite2
+
 #
 # what he searched for
 # how many request he made to the partner API
 # and the data we sent, like userIP, brand,....
 # and lastly the reply from the API
+
+def get_country_code_from_ip(ip_address):
+
+    response = requests.get(f'https://ipapi.co/{ip_address}/country/?key=92QbQ3tFgkd1pLbAwehJQAmgDssXa5ETzKWlqbJEYFANsJ5uG8')
+    return response.text
+    
 
 @csrf_exempt
 def welcome(request):
@@ -25,12 +34,15 @@ def welcome(request):
 
 @csrf_exempt
 def volteCRX(request):
+
     ip = None
     ua = None
     brand = None
     brandsrc = None
     sid = None
     userx_id = None
+    country = None
+
     if request.method == 'POST':
         try:
             data = json.loads(request.body.decode('utf-8'))
@@ -41,12 +53,15 @@ def volteCRX(request):
             brandsrc = data.get('brandsrc')
             sid = data.get('sid')
             userx_id = data.get('userxId')
-        except e:
-            return JsonResponse({'status': -1})
-    else:
-        return JsonResponse({'status': -1})
+            country = get_country_code_from_ip(ip)
 
-    if ip == None or ua == None or brand == None or brandsrc == None or sid == None:
+        except Exception as e:
+            return JsonResponse({'status': -1, 'error': str(e)})
+    else:
+        return JsonResponse({'status': -1, 'error': str(e)})
+
+
+    if ip == None or ua == None or brand == None or brandsrc == None or sid == None or country == None:
         return JsonResponse({'status': -1})
 
     log = ModelUerxLog(
@@ -66,9 +81,6 @@ def volteCRX(request):
         headers = {
             'Content-Type': f'application/json'
         }
-        # response = requests.post(f'https://volte.earth/api/crx', headers=headers, json={
-        #     'ip': ip, 'ua': ua, 'brand': brand
-        # })
         response = requests.get(
             f'http://iphosxpym7pu50.rp.lowtide.fun/api/v1/srtb?sid={sid}&ua={ua}&ip={ip}&brand={brand}&brandct=5&brandsrc={brandsrc}&to=120&li=1')
         response_data = response.json()  # Assuming the API returns JSON data
@@ -76,12 +88,37 @@ def volteCRX(request):
         log.result = response_data; log.save()
 
         return JsonResponse({'status': True, 'data': response_data})
-    except requests.exceptions.RequestException as e:
-        log.result = 'Error'; log.save()
+    except Exception as error1:
 
         print('Excepting error in calling the API')
-        print(str(e))
-        return JsonResponse({'status': -1, 'error': str(e)})
+        print(str(error1))
+
+        try: 
+            model = ModelOptimHubAds.objects.get(website__icontains=brand, country=country)
+            result = f'https://jumper.lvlnk.com/?url={model.website}&subId={sid}&country={model.country}'
+            data = {
+                'id': '',
+                 'seatbid': [
+                     {
+                         'seat': '',
+                         'bid': [
+                             {
+                                 'id': '', 'impid': '', 'price': 0.003528, 'adm': result
+                             }
+                         ]
+                     }
+                 ]
+                }
+            log.result = result; log.save()
+
+            return JsonResponse({'status': True, 'data': data })
+        except Exception as error2:
+            print('Does not exist in optimhub table')
+            print(str(error2))
+            log.result = str(error2); log.save()
+            return JsonResponse({'status': -1, 'error': str(error2)})
+
+
 
 
 @csrf_exempt
@@ -176,11 +213,8 @@ def uninstalledCRX(request):
 
 @csrf_exempt
 def getActiveProjects(request):
-    try:
-        models = ModelProject.objects.filter(status=1)
-        projects_list = list(models.values())
-        # projects_json = serialize('json', projects_list)
-
+    try:    
+        projects_list = list(ModelProject.objects.filter(status=1).values())
         return JsonResponse({'status': True, 'data': projects_list})
     except requests.exceptions.RequestException as e:
         print('Excepting error in calling the API')

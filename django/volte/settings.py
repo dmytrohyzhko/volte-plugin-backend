@@ -87,7 +87,7 @@ DATABASES = {
         'PASSWORD': 'AF9oVbdLFC',
         'HOST': '51.178.249.189',  # Set to the host where your MySQL server is running
         'PORT': '3306',       # Set to the port your MySQL server is listening on
-    }
+    },
 }
 
 

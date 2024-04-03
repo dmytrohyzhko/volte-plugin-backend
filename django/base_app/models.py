@@ -1,10 +1,5 @@
 from django.db import models
-import json
-import uuid
 from datetime import datetime, timedelta
-from django.contrib.auth.models import AbstractUser
-from django.contrib.auth.base_user import BaseUserManager
-import django.core.serializers
 from django.utils import timezone
 
 # Create your models here.
@@ -50,3 +45,13 @@ class ModelUerxLog(models.Model):
 
     class Meta:
         db_table = "userx_log"
+
+class ModelOptimHubAds(models.Model):
+    ads_id = models.CharField(max_length=250)
+    name = models.CharField(max_length=250)
+    website = models.CharField(max_length=250)
+    country = models.CharField(max_length=250)
+    created_at = models.CharField(max_length=250)
+    
+    class Meta:
+        db_table = "optimhub_daily_offers"

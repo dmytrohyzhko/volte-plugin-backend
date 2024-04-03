@@ -20,3 +20,6 @@ mysqlclient
 pymongo
 xmltodict
 django-cors-headers
+apscheduler
+python-geoip
+python-geoip-geolite2
